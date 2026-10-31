@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+body {
+  background: #0a0f18; /* Plex වැනි තද පසුබිම */
+  color: #f3f4f6;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #121a28; }
+::-webkit-scrollbar-thumb { background: #1e4d8c; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+/* පොදු බොත්තම් සහ ආදාන */
+.btn-primary {
+  @apply bg-accent hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-sm;
+}
+.btn-ghost {
+  @apply border border-white/20 hover:bg-white/10 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-sm;
+}
+.input-dark {
+  @apply bg-panel border border-white/10 rounded-lg px-4 py-2 text-sm text-text w-full focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all;
+}
