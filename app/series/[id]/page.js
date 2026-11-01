@@ -1,5 +1,24 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import WatchlistButton from '@/components/WatchlistButton';
+
+// 👇 Import වලට පස්සේ තමයි මේක එන්න ඕනේ
+export async function generateMetadata({ params }) {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const res = await fetch(`${base}/api/series/${params.id}`, { cache: 'no-store' });
+  if (!res.ok) return { title: 'Series Not Found' };
+  const data = await res.json();
+
+  return {
+    title: data.title,
+    description: data.description,
+    openGraph: {
+      title: data.title,
+      description: data.description,
+      images: [data.poster || '/logo.png'],
+    },
+  };
+}
 
 export default async function SeriesDetail({ params }) {
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -55,6 +74,12 @@ export default async function SeriesDetail({ params }) {
             <p className="text-xs md:text-sm text-gray-300 leading-relaxed max-w-3xl mx-auto md:mx-0 drop-shadow-sm">
               {data.description}
             </p>
+
+            {/* 👇 Watchlist බොත්තම */}
+            <div className="pt-2 flex justify-center md:justify-start">
+              <WatchlistButton itemId={data.id} itemType="series" />
+            </div>
+
           </div>
         </div>
 
@@ -71,7 +96,6 @@ export default async function SeriesDetail({ params }) {
                 {season.episodes.map(ep => (
                   <Link
                     key={ep.id}
-                    // 👇 මෙතන encodeURIComponent සහ target="_blank" දැම්මා
                     href={`/watch/loading?target=${encodeURIComponent(`/watch/episode/${ep.id}`)}&title=${encodeURIComponent(`S${ep.season}E${ep.episode} - ${ep.title || data.title}`)}`}
                     target="_blank" 
                     rel="noopener noreferrer"

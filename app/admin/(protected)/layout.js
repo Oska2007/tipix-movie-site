@@ -17,7 +17,8 @@ export default async function AdminLayout({ children }) {
         
         {/* Admin Logo එක */}
         <div className="mb-6 px-3 pt-2 flex justify-center">
-          <Link href="/" className="flex flex-col items-center gap-1 group">
+          {/* 👇 මෙන්න මේක තමයි වෙනස් කළේ. href="/" තිබ්බ තැන href="/admin" කළා */}
+          <Link href="/admin" className="flex flex-col items-center gap-1 group">
             <img 
               src="/logo.png" 
               alt="Tipix Logo" 

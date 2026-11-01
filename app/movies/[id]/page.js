@@ -1,5 +1,24 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import WatchlistButton from '@/components/WatchlistButton';
+
+// 👇 Import වලට පස්සේ තමයි මේක එන්න ඕනේ
+export async function generateMetadata({ params }) {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const res = await fetch(`${base}/api/movies/${params.id}`, { cache: 'no-store' });
+  if (!res.ok) return { title: 'Movie Not Found' };
+  const movie = await res.json();
+
+  return {
+    title: movie.title,
+    description: movie.description,
+    openGraph: {
+      title: movie.title,
+      description: movie.description,
+      images: [movie.poster || '/logo.png'],
+    },
+  };
+}
 
 export default async function MovieDetail({ params }) {
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -72,8 +91,8 @@ export default async function MovieDetail({ params }) {
               {movie.torrent720p && (
                 <Link 
                   href={`/watch/loading?target=${encodeURIComponent(`/watch/movie/${movie.id}?quality=720p`)}&title=${encodeURIComponent(movie.title)}`} 
-                  target="_blank" // 👈 මේක අලුත් ටැබ් එකක ඕපන් වෙන්න
-                  rel="noopener noreferrer" // 👈 Security එකට
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-accent hover:bg-blue-600 text-white font-semibold px-5 py-2 md:px-6 md:py-2.5 rounded-lg transition-all shadow-lg shadow-accent/30 hover:scale-105 text-xs md:text-sm"
                 >
                   <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
@@ -85,14 +104,17 @@ export default async function MovieDetail({ params }) {
               {movie.torrent1080p && (
                 <Link 
                   href={`/watch/loading?target=${encodeURIComponent(`/watch/movie/${movie.id}?quality=1080p`)}&title=${encodeURIComponent(movie.title)}`} 
-                  target="_blank" // 👈 මේක අලුත් ටැබ් එකක ඕපන් වෙන්න
-                  rel="noopener noreferrer" // 👈 Security එකට
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-5 py-2 md:px-6 md:py-2.5 rounded-lg transition-all shadow-lg hover:scale-105 text-xs md:text-sm"
                 >
                   <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
                   Watch 1080p
                 </Link>
               )}
+
+              {/* 👇 අලුත් Watchlist බොත්තම මෙතන තියෙනවා */}
+              <WatchlistButton itemId={movie.id} itemType="movie" />
 
             </div>
           </div>

@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { movies } from '@/lib/schema';
 import { and, eq, like, desc } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import { sendToTelegram } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export async function GET(req) {
   let conditions = [];
   if (search) conditions.push(like(movies.title, `%${search}%`));
   if (year) conditions.push(eq(movies.year, parseInt(year)));
-  if (genre) conditions.push(like(movies.genres, `%${genre}%`)); // Genres comma separated string එකක් නිසා
+  if (genre) conditions.push(like(movies.genres, `%${genre}%`));
   if (language) conditions.push(eq(movies.language, language));
 
   let query = db.select().from(movies);
@@ -35,6 +36,7 @@ export async function GET(req) {
   return NextResponse.json(results.all());
 }
 
+// 👇 මෙන්න මේ POST එක විතරයි තියෙන්න ඕනේ
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -48,7 +50,18 @@ export async function POST(req) {
       createdAt: Date.now()
     };
     
+    // 1. ඩේටාබේස් එකට සේව් කරනවා
     db.insert(movies).values(newMovie).run();
+
+    // 2. ටෙලිග්‍රෑම් එකට යවනවා
+    await sendToTelegram({
+      title: newMovie.title,
+      description: newMovie.description,
+      poster: newMovie.poster,
+      type: 'movie',
+      id: newMovie.id
+    });
+
     return NextResponse.json(newMovie);
   } catch (error) {
     console.error(error);

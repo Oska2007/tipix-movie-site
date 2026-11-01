@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { series } from '@/lib/schema';
 import { and, eq, like, desc } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import { sendToTelegram } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
+    
     const newSeries = {
       id: randomUUID(),
       ...body,
@@ -41,9 +43,20 @@ export async function POST(req) {
       createdAt: Date.now()
     };
     
+    // 1. ඩේටාබේස් එකට සේව් කරනවා
     db.insert(series).values(newSeries).run();
+
+    // 2. ටෙලිග්‍රෑම් එකට යවනවා
+    await sendToTelegram({
+      title: newSeries.title,
+      description: newSeries.description,
+      poster: newSeries.poster,
+      type: 'series',
+      id: newSeries.id
+    });
+
     return NextResponse.json(newSeries);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
